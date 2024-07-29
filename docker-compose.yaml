@@ -1,0 +1,81 @@
+version: '2'
+
+services:
+  itvdelab:
+    image: itversity/itvdelab
+    hostname: itvdelab
+    ports:
+      - "8889:8888"
+      - "9879:9870"
+      - "4040:4040"
+      - "8078:8088"
+      - "18180:18080"
+      - "18181:18081"
+    volumes:
+      - "./itversity-material:/home/itversity/itversity-material"
+      - "./data:/data"
+    environment:
+      SHELL: /bin/bash
+    networks:
+      - itvdelabnw
+    depends_on:
+      - "cluster_util_db"
+      - "hbase-master"
+      - "hbase-regionserver"
+      - "zookeeper"
+      - "hbase-thrift"
+
+  cluster_util_db:
+    image: postgres:13
+    ports:
+      - "6432:5432"
+    volumes:
+      - ./cluster_util_db_scripts:/docker-entrypoint-initdb.d
+    networks:
+      - itvdelabnw
+    environment:
+      POSTGRES_PASSWORD: itversity
+
+  hbase-master:
+    image: blueskyareahm/hbase-base:2.1.3
+    command: master
+    ports:
+      - 16000:16000
+      - 16010:16010
+    networks:
+      - itvdelabnw
+
+  hbase-regionserver:
+    image: blueskyareahm/hbase-base:2.1.3
+    command: regionserver
+    ports:
+      - 16030:16030
+      - 16201:16201
+      - 16301:16301
+    networks:
+      - itvdelabnw
+    depends_on:
+      - hbase-master
+
+  zookeeper:
+    image: blueskyareahm/hbase-zookeeper:3.4.13
+    ports:
+      - 2181:2181
+    networks:
+      - itvdelabnw
+
+  hbase-thrift:
+    image: blueskyareahm/hbase-base:2.1.3
+    command: thrift start
+    ports:
+      - 9090:9090
+    networks:
+      - itvdelabnw
+    depends_on:
+      - hbase-master
+      - hbase-regionserver
+      - zookeeper
+
+networks:
+  itvdelabnw:
+    external: true
