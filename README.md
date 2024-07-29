@@ -56,7 +56,7 @@ HBase was used to manage the system's data efficiently. To handle the problem of
 
 ## Implementing SCD Type 2 with Spark
 
-We implemented Slowly Changing Dimensions Type 2 (SCD Type 2) using Apache Spark. This approach:
+implemented Slowly Changing Dimensions Type 2 (SCD Type 2) using Apache Spark. This approach:
 
 - Manages historical data by maintaining the history of changes in data over time
 - Enables effective tracking and querying of historical records
